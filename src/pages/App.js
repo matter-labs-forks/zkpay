@@ -1,25 +1,20 @@
 import React from 'react';
 import { Router, Route, Switch } from 'react-router-dom';
-import clsx from 'clsx';
 import {
   ThemeProvider as MuiThemeProvider,
   makeStyles,
 } from '@material-ui/core/styles';
-import { CssBaseline, Paper } from '@material-ui/core';
+import { CssBaseline } from '@material-ui/core';
 import { createHashHistory } from 'history';
 import { useTheme, useMuiTheme } from 'context/theme';
 
-import Header from 'components/Header';
 import Home from './Home';
 import Pay from './Pay';
 
 const history = createHashHistory();
 
 const useStyles = makeStyles(theme => ({
-  container: { paddingTop: 80 },
-  paper: {
-    width: 600,
-  },
+  container: { paddingTop: 100 },
 }));
 
 export default function App() {
@@ -41,17 +36,10 @@ export default function App() {
       <Router {...{ history }}>
         <div className={classes.container}>
           <div className="flex-grow">
-            <Header />
-            <div
-              className={clsx('flex flex-col items-center', classes.container)}
-            >
-              <Paper className={clsx(classes.paper)}>
-                <Switch>
-                  <Route path={'/:link'} component={Pay} />
-                  <Route path={'/'} component={Home} />
-                </Switch>
-              </Paper>
-            </div>
+            <Switch>
+              <Route path={'/:link'} component={Pay} />
+              <Route path={'/'} component={Home} />
+            </Switch>
           </div>
         </div>
       </Router>

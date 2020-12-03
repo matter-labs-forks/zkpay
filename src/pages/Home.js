@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Paper,
   TextField,
   Button,
   Select,
@@ -14,6 +15,7 @@ import {
 import { TwitterPicker as ColorPicker } from 'react-color';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Loader from 'components/Loader';
+import Header from 'components/Header';
 import { useTheme } from 'context/theme';
 import { useWallet } from 'context/wallet';
 import { useLinks } from 'context/links';
@@ -21,6 +23,9 @@ import sl, { warn } from 'utils/sl';
 import { sleep } from 'utils/misc';
 
 const useStyles = makeStyles(theme => ({
+  paper: {
+    width: 600,
+  },
   paperHeading: {
     padding: 20,
     background: theme.palette.isDark ? '#303030' : '#eee',
@@ -80,42 +85,63 @@ export default function Component() {
 
   return (
     <>
-      <div
-        className={clsx(
-          classes.paperHeading,
-          'flex',
-          'flex-grow',
-          'items-center',
-          'justify-space'
-        )}
-      >
-        <div>MY PAYMENT LINKS</div>
+      <Header />
 
-        {!connected ? null : (
-          <Button color="secondary" variant="outlined" onClick={onStartCreate}>
-            Create
-          </Button>
-        )}
-      </div>
-      <div className={clsx(classes.paperBody, 'flex', 'flex-col', 'flex-grow')}>
-        {!connected ? (
+      <div className={clsx('flex flex-col items-center', classes.container)}>
+        <Paper className={clsx(classes.paper)}>
           <div
-            className={clsx('flex', 'flex-col', 'flex-grow', 'items-center')}
+            className={clsx(
+              classes.paperHeading,
+              'flex',
+              'flex-grow',
+              'items-center',
+              'justify-space'
+            )}
           >
-            <div>Connect wallet to get started...</div>
-            <br />
-            <div>
-              <Button color="secondary" variant="outlined" onClick={connect}>
-                Connect Wallet
+            <div>MY PAYMENT LINKS</div>
+
+            {!connected ? null : (
+              <Button
+                color="secondary"
+                variant="outlined"
+                onClick={onStartCreate}
+              >
+                Create
               </Button>
-            </div>
+            )}
           </div>
-        ) : (
-          <>
-            <ListLinks {...{ onStartCreate, onEndCreating }} />
-            <CreateLink open={isCreating} onClose={onEndCreating} />
-          </>
-        )}
+          <div
+            className={clsx(classes.paperBody, 'flex', 'flex-col', 'flex-grow')}
+          >
+            {!connected ? (
+              <div
+                className={clsx(
+                  'flex',
+                  'flex-col',
+                  'flex-grow',
+                  'items-center'
+                )}
+              >
+                <div>Connect wallet to get started...</div>
+                <br />
+                <div>
+                  <Button
+                    color="secondary"
+                    variant="outlined"
+                    onClick={connect}
+                  >
+                    Connect Wallet
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <ListLinks {...{ onStartCreate, onEndCreating }} />
+                <CreateLink open={isCreating} onClose={onEndCreating} />
+              </>
+            )}
+          </div>
+        </Paper>
       </div>
     </>
   );
@@ -372,7 +398,7 @@ function CopyLinkUrl({ link }) {
   return (
     <CopyToClipboard text={window.location.href + link.id} {...{ onCopy }}>
       <Button color="secondary" variant="outlined">
-        {copied ? 'Copied ✓' : 'Copy Link'}
+        {copied ? 'Copied ✓' : 'Copy Link Url'}
       </Button>
     </CopyToClipboard>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Paper,
   TextField,
   Button,
   Select,
@@ -16,6 +17,9 @@ import { useLinks } from 'context/links';
 import sl, { slPrompt } from 'utils/sl';
 
 const useStyles = makeStyles(theme => ({
+  paper: {
+    width: 600,
+  },
   paperHeading: {
     padding: 20,
     background: theme.palette.isDark ? '#303030' : '#eee',
@@ -72,7 +76,7 @@ export default function Component({
 
   const onLoad = async () => {
     const info = await getById(linkId);
-    if (!info.address)
+    if (!info?.address)
       return slPrompt(
         'Unknown payment link. You will be redirected back to the homepage..',
         'Error',
@@ -103,102 +107,106 @@ export default function Component({
     );
   };
 
-  return (
-    <>
-      <div
-        className={clsx(
-          classes.paperHeading,
-          'flex',
-          'flex-grow',
-          'items-center',
-          'justify-center'
-        )}
-      >
-        Pay
-      </div>
-      <div className={clsx(classes.paperBody, 'flex', 'flex-col', 'flex-grow')}>
-        <div style={{ color: secondaryColor }} className={classes.infoBar}>
-          You have the option to send from your Zk Sync account (fast & cheap)
-          or <br />
-          the regular network.{' '}
-          <Link
-            href="https://www.youtube.com/watch?v=el-9YYGN1nw"
-            variant="inherit"
-            className={classes.learnMore}
-          >
-            Learn more.
-          </Link>
-        </div>
-        <div className={classes.formRow}>
-          <FormControl fullWidth>
-            <InputLabel id="methodLabel">Network</InputLabel>
-            <Select
-              labelId="methodLabel"
-              id="methodSelect"
-              value={method}
-              onChange={event => setMethod(event.target.value)}
-            >
-              {METHODS.map(({ name, value }) => (
-                <MenuItem value={value} key={value}>
-                  {name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
-        <div className={classes.formRow}>
-          <FormControl fullWidth>
-            <InputLabel id="assetLabel">Asset</InputLabel>
-            <Select
-              labelId="assetLabel"
-              id="assetSelect"
-              value={asset}
-              onChange={event => setAsset(event.target.value)}
-            >
-              {assets[method].map(({ name, value }) => (
-                <MenuItem value={name} key={name}>
-                  {name} ({value})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
-        <div className={classes.formRow}>
-          <TextField
-            id="amount"
-            label={`Amount (${asset})`}
-            type="number"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-            fullWidth
-            required
-          />
-        </div>
-        <div className={classes.formRow}>
-          {!address ? (
-            <Button
-              variant="contained"
-              color="secondary"
-              className={classes.formButton}
-              onClick={onSend}
-            >
-              Connect Wallet
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              color="secondary"
-              className={classes.formButton}
-              onClick={onSend}
-            >
-              Send
-            </Button>
+  return !link ? null : (
+    <div className={clsx('flex flex-col items-center', classes.container)}>
+      <Paper className={clsx(classes.paper)}>
+        <div
+          className={clsx(
+            classes.paperHeading,
+            'flex',
+            'flex-grow',
+            'items-center',
+            'justify-center'
           )}
+        >
+          Pay
         </div>
-      </div>
-    </>
+        <div
+          className={clsx(classes.paperBody, 'flex', 'flex-col', 'flex-grow')}
+        >
+          <div style={{ color: secondaryColor }} className={classes.infoBar}>
+            You have the option to send from your Zk Sync account (fast & cheap)
+            or <br />
+            the regular network.{' '}
+            <Link
+              href="https://www.youtube.com/watch?v=el-9YYGN1nw"
+              variant="inherit"
+              className={classes.learnMore}
+            >
+              Learn more.
+            </Link>
+          </div>
+          <div className={classes.formRow}>
+            <FormControl fullWidth>
+              <InputLabel id="methodLabel">Network</InputLabel>
+              <Select
+                labelId="methodLabel"
+                id="methodSelect"
+                value={method}
+                onChange={event => setMethod(event.target.value)}
+              >
+                {METHODS.map(({ name, value }) => (
+                  <MenuItem value={value} key={value}>
+                    {name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+          <div className={classes.formRow}>
+            <FormControl fullWidth>
+              <InputLabel id="assetLabel">Asset</InputLabel>
+              <Select
+                labelId="assetLabel"
+                id="assetSelect"
+                value={asset}
+                onChange={event => setAsset(event.target.value)}
+              >
+                {assets[method].map(({ name, value }) => (
+                  <MenuItem value={name} key={name}>
+                    {name} ({value})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+          <div className={classes.formRow}>
+            <TextField
+              id="amount"
+              label={`Amount (${asset})`}
+              type="number"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              fullWidth
+              required
+            />
+          </div>
+          <div className={classes.formRow}>
+            {!address ? (
+              <Button
+                variant="contained"
+                color="secondary"
+                className={classes.formButton}
+                onClick={onSend}
+              >
+                Connect Wallet
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="secondary"
+                className={classes.formButton}
+                onClick={onSend}
+              >
+                Send
+              </Button>
+            )}
+          </div>
+        </div>
+      </Paper>
+    </div>
   );
 }

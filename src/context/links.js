@@ -25,7 +25,7 @@ export function LinksProvider({ children }) {
     await sleep(2000);
     setIsCreating(false);
     const links = cache('links') || [];
-    links.push({ ...props, id: links.length + 1 });
+    links.push({ ...props, id: (links.length + 1).toString() });
     cache('links', links);
     setLinks(links);
   }
