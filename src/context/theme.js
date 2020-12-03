@@ -58,7 +58,7 @@ export function useMuiTheme() {
     overrides: {
       MuiButton: {
         root: {
-          borderRadius: 2,
+          borderRadius: 4,
         },
       },
     },

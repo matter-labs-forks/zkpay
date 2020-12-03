@@ -46,7 +46,7 @@ export default function Component() {
         <Typography variant="h6" className={'flex flex-grow'}>
           <div className={'flex flex-col'}>
             <div>{APP_TITLE}</div>
-            <div style={{ fontSize: 9 }}>Fast, Cheap Payments on Ethereum</div>
+            <div style={{ fontSize: 9 }}>Simple, Fast Payments on Ethereum</div>
           </div>
         </Typography>
 

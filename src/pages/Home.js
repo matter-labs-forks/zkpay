@@ -9,11 +9,16 @@ import {
   FormControl,
   InputLabel,
   Dialog,
+  Popover,
 } from '@material-ui/core';
+import { TwitterPicker as ColorPicker } from 'react-color';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Loader from 'components/Loader';
 import { useTheme } from 'context/theme';
 import { useWallet } from 'context/wallet';
-import * as links from 'utils/links';
+import { useLinks } from 'context/links';
 import sl, { warn } from 'utils/sl';
+import { sleep } from 'utils/misc';
 
 const useStyles = makeStyles(theme => ({
   paperHeading: {
@@ -44,6 +49,23 @@ const useStyles = makeStyles(theme => ({
   link: {
     marginBottom: 5,
   },
+  colorLabel: {
+    width: 20,
+    height: 20,
+    position: 'relative',
+    borderRadius: 4,
+    marginRight: 5,
+  },
+  colorFieldLabel: {
+    color: theme.palette.secondary.text,
+    marginRight: 10,
+  },
+  colorField: {
+    width: 40,
+    height: 25,
+    position: 'relative',
+    borderRadius: 4,
+  },
 }));
 
 const ASSET_TYPES = ['ETH', 'ERC20'];
@@ -51,34 +73,10 @@ const ASSET_TYPES = ['ETH', 'ERC20'];
 export default function Component() {
   const classes = useStyles();
   const [isCreating, setIsCreating] = React.useState(false);
-  const [linkInfos, setLinkInfos] = React.useState([]);
-  const { connect } = useWallet();
+  const { connect, address: connected } = useWallet();
 
-  const onStartCreate = async () => {
-    await connect();
-    setIsCreating(true);
-  };
-  const onStopCreating = () => setIsCreating(false);
-  const onCreate = async props => {
-    await links.create(props);
-    await onLoad();
-    sl('info', 'Created link..', 'Success!', onStopCreating);
-  };
-
-  const onRemoveLink = id => {
-    warn('Warning', async () => {
-      await links.remove(id);
-      await onLoad();
-    });
-  };
-
-  const onLoad = async () => {
-    setLinkInfos(await links.all());
-  };
-
-  React.useEffect(() => {
-    onLoad();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const onStartCreate = () => setIsCreating(true);
+  const onEndCreating = () => setIsCreating(false);
 
   return (
     <>
@@ -93,67 +91,164 @@ export default function Component() {
       >
         <div>MY PAYMENT LINKS</div>
 
-        <Button color="secondary" variant="outlined" onClick={onStartCreate}>
-          Create
-        </Button>
+        {!connected ? null : (
+          <Button color="secondary" variant="outlined" onClick={onStartCreate}>
+            Create
+          </Button>
+        )}
       </div>
       <div className={clsx(classes.paperBody, 'flex', 'flex-col', 'flex-grow')}>
-        {linkInfos.map(({}, id) => (
-          <div className={clsx('flex', classes.link)} key={id}>
-            <div className="flex-grow">link-{id}</div>{' '}
-            <Button
-              color="secondary"
-              variant="outlined"
-              onClick={() => console.log(window.location.href + id)}
-            >
-              Copy Link
-            </Button>
-            &nbsp;
-            <Button
-              color="secondary"
-              variant="outlined"
-              onClick={() => onRemoveLink(id)}
-            >
-              Remove
-            </Button>
+        {!connected ? (
+          <div
+            className={clsx('flex', 'flex-col', 'flex-grow', 'items-center')}
+          >
+            <div>Connect wallet to get started...</div>
+            <br />
+            <div>
+              <Button color="secondary" variant="outlined" onClick={connect}>
+                Connect Wallet
+              </Button>
+            </div>
           </div>
-        ))}
+        ) : (
+          <>
+            <ListLinks {...{ onStartCreate, onEndCreating }} />
+            <CreateLink open={isCreating} onClose={onEndCreating} />
+          </>
+        )}
       </div>
-
-      <CreateLink
-        open={isCreating}
-        onClose={onStopCreating}
-        {...{ onCreate }}
-      />
     </>
   );
 }
 
-function CreateLink({ open, onCreate, onClose }) {
+function ListLinks({ onStartCreate }) {
+  const classes = useStyles();
+  const { isLoading, links, loadAll, remove } = useLinks();
+
+  const onLoad = async () => {
+    await loadAll();
+  };
+
+  const onRemoveLink = id => {
+    warn('Warning', async () => {
+      await remove(id);
+    });
+  };
+
+  React.useEffect(() => {
+    onLoad();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className={clsx('flex', 'flex-col', 'flex-grow')}>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          {!links.length ? (
+            <div
+              className={clsx('flex', 'flex-col', 'flex-grow', 'items-center')}
+            >
+              <div>You do not have any payment links.</div>
+              <br />
+              <Button
+                color="secondary"
+                variant="outlined"
+                onClick={onStartCreate}
+              >
+                Create New Link
+              </Button>
+            </div>
+          ) : (
+            <>
+              {links.map(link => (
+                <div
+                  className={clsx('flex', 'items-center', classes.link)}
+                  key={link.id}
+                >
+                  <div
+                    className={classes.colorLabel}
+                    style={{ background: link.color }}
+                  ></div>
+                  <div className="flex-grow">{link.name}</div>{' '}
+                  <CopyLinkUrl {...{ link }} />
+                  &nbsp;
+                  <Button
+                    color="secondary"
+                    variant="outlined"
+                    onClick={() => onRemoveLink(link.id)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function CreateLink({ open, onClose }) {
   const classes = useStyles();
   const { address } = useWallet();
   const { secondaryColor } = useTheme();
+  const { create } = useLinks();
+  const [name, setName] = React.useState('');
+  const [color, setColor] = React.useState('#fc0');
+  const [recipient, setRecipient] = React.useState(address);
   const [assetType, setAssetType] = React.useState('ETH');
   const [erc20AssetAddress, setErc20AssetAddress] = React.useState('');
-  const [amount, setAmount] = React.useState(0);
+  const [amount, setAmount] = React.useState(0.1);
+  const [colorField, setColorField] = React.useState(null);
+
+  const onCreate = async e => {
+    e.preventDefault();
+    await create({
+      name,
+      color,
+      assetType,
+      erc20AssetAddress,
+      amount,
+      address,
+    });
+    sl('info', 'Created link..', 'Success!', onClose);
+  };
 
   return (
     <Dialog {...{ open, onClose }}>
-      <div
+      <form
         className={clsx(
           classes.createLinkDialog,
           'flex',
           'flex-col',
           'flex-grow'
         )}
+        onSubmit={onCreate}
       >
         <div style={{ color: secondaryColor }} className={classes.infoBar}>
-          Payment links are stored in IPFS.
+          Your payment links are stored in IPFS.
         </div>
 
         <div className={classes.formRow}>
+          <TextField
+            id="name"
+            label={'Name'}
+            type="text"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            placeholder="Name of the link.."
+            value={name}
+            onChange={e => setName(e.target.value)}
+            fullWidth
+            required
+          />
+        </div>
+        <div className={classes.formRow}>
           <FormControl fullWidth>
-            <InputLabel id="assetTypeLabel">Asset Type</InputLabel>
+            <InputLabel id="assetTypeLabel">Asset to Receive*</InputLabel>
             <Select
               labelId="assetTypeLabel"
               id="assetTypeSelect"
@@ -169,13 +264,12 @@ function CreateLink({ open, onCreate, onClose }) {
             </Select>
           </FormControl>
         </div>
-
         {assetType !== 'ERC20' ? null : (
           <div className={classes.formRow}>
             <TextField
               id="amount"
-              label={'ERC20 Token Address'}
-              type="number"
+              label={'ERC20 Token Contract Address'}
+              type="text"
               InputLabelProps={{
                 shrink: true,
               }}
@@ -186,11 +280,10 @@ function CreateLink({ open, onCreate, onClose }) {
             />
           </div>
         )}
-
         <div className={classes.formRow}>
           <TextField
             id="amount"
-            label={'Amount (optional)'}
+            label={`${assetType} Amount (optional)`}
             type="number"
             InputLabelProps={{
               shrink: true,
@@ -200,20 +293,35 @@ function CreateLink({ open, onCreate, onClose }) {
             fullWidth
           />
         </div>
-
+        <div className={classes.formRow}>
+          <TextField
+            id="recipient"
+            label={'Recipient'}
+            type="text"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            placeholder="Recipient address..."
+            value={recipient}
+            onChange={e => setRecipient(e.target.value)}
+            fullWidth
+            required
+          />
+        </div>
+        <div className={clsx(classes.formRow, 'flex')}>
+          <div className={classes.colorFieldLabel}>Color*</div>
+          <div
+            className={classes.colorField}
+            style={{ background: color }}
+            onClick={e => setColorField(e.target)}
+          ></div>
+        </div>
         <div className={classes.formRow}>
           <Button
             variant="contained"
             color="secondary"
             className={classes.formButton}
-            onClick={() =>
-              onCreate({
-                assetType,
-                erc20AssetAddress,
-                amount,
-                address,
-              })
-            }
+            type="submit"
           >
             Create
           </Button>
@@ -222,11 +330,50 @@ function CreateLink({ open, onCreate, onClose }) {
             color="secondary"
             className={classes.formButton}
             onClick={onClose}
+            type="button"
           >
             Cancel
           </Button>
         </div>
-      </div>
+      </form>
+
+      <Popover
+        open={!!colorField}
+        anchorEl={colorField}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        <ColorPicker
+          {...{ color }}
+          onChangeComplete={c => {
+            setColor(c.hex);
+            setColorField(null);
+          }}
+        />
+      </Popover>
     </Dialog>
+  );
+}
+
+function CopyLinkUrl({ link }) {
+  const [copied, setCopied] = React.useState(false);
+  const onCopy = async () => {
+    setCopied(true);
+    await sleep(2000);
+    setCopied(false);
+  };
+
+  return (
+    <CopyToClipboard text={window.location.href + link.id} {...{ onCopy }}>
+      <Button color="secondary" variant="outlined">
+        {copied ? 'Copied ✓' : 'Copy Link'}
+      </Button>
+    </CopyToClipboard>
   );
 }

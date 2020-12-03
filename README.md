@@ -1,4 +1,4 @@
-![](https://zk-links.surge.sh/checkout.png)
+![](https://zk-links.surge.sh/shot.png)
 
 ### Zk Links
 

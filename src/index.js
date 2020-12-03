@@ -6,7 +6,7 @@ import { render } from 'react-dom';
 import * as serviceWorker from './serviceWorker';
 import { ThemeProvider } from 'context/theme';
 import { WalletProvider } from 'context/wallet';
-
+import { LinksProvider } from './context/links';
 import App from 'pages/App';
 
 (async () => {
@@ -19,7 +19,9 @@ import App from 'pages/App';
   render(
     <WalletProvider>
       <ThemeProvider>
-        <App />
+        <LinksProvider>
+          <App />
+        </LinksProvider>
       </ThemeProvider>
     </WalletProvider>,
     document.getElementById('root')

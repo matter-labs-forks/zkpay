@@ -8,12 +8,12 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Link,
 } from '@material-ui/core';
 import { useWallet } from 'context/wallet';
 import { useTheme } from 'context/theme';
+import { useLinks } from 'context/links';
 import sl, { slPrompt } from 'utils/sl';
-import { sleep } from 'utils/misc';
-import * as links from 'utils/links';
 
 const useStyles = makeStyles(theme => ({
   paperHeading: {
@@ -37,15 +37,19 @@ const useStyles = makeStyles(theme => ({
   infoBar: {
     marginBottom: 20,
   },
+  learnMore: {
+    color: theme.palette.secondary.main,
+    textDecoration: 'underline',
+  },
 }));
 
 const METHODS = [
-  { name: 'Main', value: 'main' },
-  { name: 'Zk Sync', value: 'zk' },
+  { name: 'Zk Sync (Layer 2 - Recommended)', value: 'zk' },
+  { name: 'Regular (Layer 1)', value: 'main' },
 ];
 export default function Component({
   match: {
-    params: { link },
+    params: { link: linkId },
   },
 }) {
   const classes = useStyles();
@@ -53,48 +57,50 @@ export default function Component({
   const [method, setMethod] = React.useState('zk');
   const [asset, setAsset] = React.useState('ETH');
   const [amount, setAmount] = React.useState(0.01);
-  const [linkInfo, setLinkInfo] = React.useState({});
+  const { getById } = useLinks();
+  const [link, setLink] = React.useState(null);
   const {
+    address,
     assets,
+
     deposit,
     transfer,
-    hasRegistered,
-    address,
-    syncWallet,
     connect,
+    ensureIsRegistered,
   } = useWallet();
   const isZk = method === 'zk';
 
   const onLoad = async () => {
-    const info = await links.get(link);
+    const info = await getById(linkId);
+    if (!info.address)
+      return slPrompt(
+        'Unknown payment link. You will be redirected back to the homepage..',
+        'Error',
+        () => window.location.assign('/')
+      );
     console.log(info);
-    setLinkInfo(info);
+    setLink(info);
     setAmount(info.amount);
   };
 
   React.useEffect(() => {
     onLoad();
-  }, [link]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const onConnectAndSend = async () => {
-    await connect();
-    await onSend();
-  };
+  }, [linkId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSend = async () => {
+    await connect();
+
     if (isZk) {
-      // if (!hasRegistered) {
-      //   await slPrompt(
-      //     'To start using your account you need to register your public key once. This operation costs 15000 gas on-chain. In the future, we will eliminate this step by verifying ETH signatures with zero-knowledge proofs. Please bear with us!',
-      //     'Register',
-      //     register
-      //   );
-      // }
-      console.log(await transfer(linkInfo.address, amount.toString()));
+      await ensureIsRegistered();
+      console.log(await transfer(link.address, amount.toString()));
     } else {
-      console.log(await deposit(linkInfo.address, amount.toString()));
+      console.log(await deposit(link.address, amount.toString()));
     }
-    sl('info', 'Waiting for transaction to be mined..', 'Submitted!');
+    sl(
+      'info',
+      `Waiting for transaction to be ${isZk ? 'verified' : 'mined'}..`,
+      'Success!'
+    );
   };
 
   return (
@@ -111,10 +117,18 @@ export default function Component({
         Pay
       </div>
       <div className={clsx(classes.paperBody, 'flex', 'flex-col', 'flex-grow')}>
-        <div
-          style={{ color: secondaryColor }}
-          className={classes.infoBar}
-        ></div>
+        <div style={{ color: secondaryColor }} className={classes.infoBar}>
+          You have the option to send from your Zk Sync account (fast & cheap)
+          or <br />
+          the regular network.{' '}
+          <Link
+            href="https://www.youtube.com/watch?v=el-9YYGN1nw"
+            variant="inherit"
+            className={classes.learnMore}
+          >
+            Learn more.
+          </Link>
+        </div>
         <div className={classes.formRow}>
           <FormControl fullWidth>
             <InputLabel id="methodLabel">Network</InputLabel>
@@ -169,7 +183,7 @@ export default function Component({
               variant="contained"
               color="secondary"
               className={classes.formButton}
-              onClick={onConnectAndSend}
+              onClick={onSend}
             >
               Connect Wallet
             </Button>

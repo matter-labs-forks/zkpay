@@ -11,14 +11,14 @@ import { useTheme, useMuiTheme } from 'context/theme';
 
 import Header from 'components/Header';
 import Home from './Home';
-import Link from './Link';
+import Pay from './Pay';
 
 const history = createHashHistory();
 
 const useStyles = makeStyles(theme => ({
   container: { paddingTop: 80 },
   paper: {
-    width: 960,
+    width: 600,
   },
 }));
 
@@ -47,7 +47,7 @@ export default function App() {
             >
               <Paper className={clsx(classes.paper)}>
                 <Switch>
-                  <Route path={'/:link'} component={Link} />
+                  <Route path={'/:link'} component={Pay} />
                   <Route path={'/'} component={Home} />
                 </Switch>
               </Paper>
