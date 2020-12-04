@@ -2,7 +2,7 @@ const assert = require("assert")
 const {account, request} = require("./utils")
 
 describe("api", function () {
-  it("auth", async function () {
+  it("auths", async function () {
     const user = await account()
     assert(user.token)
   })
@@ -81,5 +81,31 @@ describe("api", function () {
       .set({Authorization: `Bearer ${user2.token}`})
       .expect(200)
       .expect(JSON.stringify([link2Id]))
+  })
+
+  it("removes links", async function () {
+    const user = await account()
+
+    const linkId = Date.now().toString()
+    const ipfsId = "ipfs"
+
+    await request
+      .put("/links")
+      .set({Authorization: `Bearer ${user.token}`})
+      .send({id: linkId, ipfsId})
+      .expect(200)
+
+    await request
+      .get(`/links/${linkId}`)
+      .expect(200)
+      .expect(JSON.stringify(ipfsId))
+
+    await request
+      .put("/links")
+      .set({Authorization: `Bearer ${user.token}`})
+      .send({id: linkId, ipfsId: null})
+      .expect(200)
+
+    await request.get(`/links/${linkId}`).expect(404)
   })
 })

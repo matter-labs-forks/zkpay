@@ -3,7 +3,7 @@ const cors = require("cors")
 const bodyParser = require("body-parser")
 const rateLimit = require("express-rate-limit")
 const morgan = require("morgan")
-
+const {PRODUCTION, TEST} = require("config")
 const auth = require("./auth")
 const links = require("./links")
 
@@ -15,7 +15,7 @@ const apiLimiter = rateLimit({
 })
 
 const app = (module.exports = express())
-if (process.env.NODE_ENV !== "test") {
+if (!TEST) {
   app.set("trust proxy", 1)
   app.use(morgan("tiny"))
   app.use(cors())
@@ -23,12 +23,10 @@ if (process.env.NODE_ENV !== "test") {
 app.use(bodyParser.json())
 app.use("/auth", apiLimiter, auth)
 app.use("/links", apiLimiter, links)
-
 app.use(function (err, req, res, next) {
-  if (err.status) {
-    res.status(err.status).json(err.message)
-  } else {
+  err.status = err.status || 500
+  if (!TEST) {
     console.error(err.stack)
-    res.status(500).json("something broke!")
   }
+  res.status(err.status).json(PRODUCTION ? "something broke!" : err.message)
 })

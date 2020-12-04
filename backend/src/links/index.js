@@ -7,8 +7,12 @@ const app = (module.exports = express.Router())
 
 app.use(auth)
 
-app.get("/:id", async (req, res) => {
-  res.json(await db.one(req.params.id))
+app.get("/:id", async (req, res, next) => {
+  try {
+    res.json(await db.one(req.params.id))
+  } catch (e) {
+    next(e)
+  }
 })
 
 app.get("/", async (req, res, next) => {
