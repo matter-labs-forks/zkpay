@@ -11,9 +11,9 @@ import {
   InputLabel,
   Link,
 } from '@material-ui/core';
-import { useWallet } from 'context/wallet';
-import { useTheme } from 'context/theme';
-import { useLinks } from 'context/links';
+import { useWallet } from 'contexts/wallet';
+import { useTheme } from 'contexts/theme';
+import { useLinks } from 'contexts/links';
 import sl, { slPrompt } from 'utils/sl';
 
 const useStyles = makeStyles(theme => ({
@@ -132,6 +132,7 @@ export default function Component({
             <Link
               href="https://www.youtube.com/watch?v=el-9YYGN1nw"
               variant="inherit"
+              target="_blank"
               className={classes.learnMore}
             >
               Learn more.

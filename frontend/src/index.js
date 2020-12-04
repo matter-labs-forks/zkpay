@@ -4,9 +4,9 @@ import './styles';
 import React from 'react';
 import { render } from 'react-dom';
 import * as serviceWorker from './serviceWorker';
-import { ThemeProvider } from 'context/theme';
-import { WalletProvider } from 'context/wallet';
-import { LinksProvider } from 'context/links';
+import { ThemeProvider } from 'contexts/theme';
+import { WalletProvider } from 'contexts/wallet';
+import { LinksProvider } from 'contexts/links';
 import App from 'pages/App';
 
 (async () => {

@@ -16,9 +16,9 @@ import { TwitterPicker as ColorPicker } from 'react-color';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Loader from 'components/Loader';
 import Header from 'components/Header';
-import { useTheme } from 'context/theme';
-import { useWallet } from 'context/wallet';
-import { useLinks } from 'context/links';
+import { useTheme } from 'contexts/theme';
+import { useWallet } from 'contexts/wallet';
+import { useLinks } from 'contexts/links';
 import sl, { warn } from 'utils/sl';
 import { sleep } from 'utils/misc';
 

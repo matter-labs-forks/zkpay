@@ -6,7 +6,7 @@ import {
 } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 import { createBrowserHistory } from 'history';
-import { useTheme, useMuiTheme } from 'context/theme';
+import { useTheme, useMuiTheme } from 'contexts/theme';
 
 import Home from './Home';
 import Pay from './Pay';

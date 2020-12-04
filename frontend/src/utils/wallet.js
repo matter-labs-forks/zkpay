@@ -1,12 +1,28 @@
 import * as zksync from 'zksync';
 import { ethers } from 'ethers';
 import Web3Modal from 'web3modal';
+import MewConnect from '@myetherwallet/mewconnect-web-client';
+import WalletConnectProvider from '@walletconnect/web3-provider';
 import xhr from 'utils/xhr';
 import cache from 'utils/cache';
+import { INFURA_ID } from 'config';
 
 const web3Modal = new Web3Modal({
   cacheProvider: true,
-  providerOptions: {},
+  providerOptions: {
+    mewconnect: {
+      package: MewConnect,
+      options: {
+        infuraId: INFURA_ID,
+      },
+    },
+    walletconnect: {
+      package: WalletConnectProvider,
+      options: {
+        infuraId: INFURA_ID,
+      },
+    },
+  },
 });
 
 export default class Wallet {
@@ -22,6 +38,7 @@ export default class Wallet {
 
   async setupEthers() {
     this.web3Provider = await web3Modal.connect();
+    console.log(this.web3Provider);
     this.ethersProvider = new ethers.providers.Web3Provider(this.web3Provider);
     this.net = await this.ethersProvider.getNetwork();
 

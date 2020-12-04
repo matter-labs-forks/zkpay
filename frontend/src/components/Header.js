@@ -13,8 +13,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import LightIcon from '@material-ui/icons/Brightness7';
 import DarkIcon from '@material-ui/icons/Brightness4';
 import { APP_TITLE } from 'config';
-import { useWallet } from 'context/wallet';
-import { useTheme } from 'context/theme';
+import { useWallet } from 'contexts/wallet';
+import { useTheme } from 'contexts/theme';
 
 const useStyles = makeStyles(theme => ({
   account: {
