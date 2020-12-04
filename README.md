@@ -1,8 +1,8 @@
-![](https://zk-links.surge.sh/shot.png)
+![](https://zkpay.link/shot.png)
 
-### Zk Links
+### ZKPay
 
 Create simple payment, donation etc links.
 Users experience fast + cheap sends, powered by [zkSync](zksync.io).
 
-Project link: https://zk-links.surge.sh
+Project link: https://zkpay.link
