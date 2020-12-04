@@ -13,7 +13,7 @@ exports.put = async function (address, id, ipfsId) {
   if (await redis("exists", getLinkKey(id))) {
     // ensure `id` belongs to `address`
     if (!(await redis("sismember", getAddressSetKey(address), id))) {
-      throw error(400)
+      throw error(403)
     }
   } else if (ipfsId) {
     await redis("sadd", getAddressSetKey(address), id)

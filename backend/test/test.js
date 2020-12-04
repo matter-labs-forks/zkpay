@@ -11,7 +11,7 @@ describe("api", function () {
     const linkId = Date.now().toString()
     const ipfsId = "ipfs"
 
-    await request.put("/links").send({id: linkId, ipfsId}).expect(400)
+    await request.put("/links").send({id: linkId, ipfsId}).expect(403)
 
     const user1 = await account()
     const user2 = await account()
@@ -26,7 +26,7 @@ describe("api", function () {
       .put("/links")
       .set({Authorization: `Bearer ${user2.token}`})
       .send({id: linkId, ipfsId})
-      .expect(400)
+      .expect(403)
   })
 
   it("gets a link", async function () {
@@ -48,7 +48,7 @@ describe("api", function () {
   })
 
   it("gets an address links", async function () {
-    await request.get("/links").expect(400)
+    await request.get("/links").expect(403)
 
     const user1 = await account()
     const user2 = await account()

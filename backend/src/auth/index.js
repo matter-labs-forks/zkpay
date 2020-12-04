@@ -10,7 +10,7 @@ app.get("/:chainId/:address", (req, res) => {
   if (ethUtil.isValidAddress(address)) {
     return res.json(challenge.create(chainId, address))
   }
-  res.status(400).json({})
+  res.status(403).json({})
 })
 
 app.get("/:chainId/:message/:signature", (req, res) => {
@@ -19,5 +19,5 @@ app.get("/:chainId/:message/:signature", (req, res) => {
   if (address) {
     return res.json(token.sign(address))
   }
-  res.status(400).json({})
+  res.status(403).json({})
 })

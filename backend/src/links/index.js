@@ -16,7 +16,7 @@ app.get("/", async (req, res, next) => {
     if (req.address) {
       return res.json(await db.all(req.address))
     }
-    throw error(400)
+    throw error(403)
   } catch (e) {
     next(e)
   }
@@ -28,7 +28,7 @@ app.put("/", async (req, res, next) => {
       await db.put(req.address, req.body.id, req.body.ipfsId)
       return res.json({})
     }
-    throw error(400)
+    throw error(403)
   } catch (e) {
     next(e)
   }
