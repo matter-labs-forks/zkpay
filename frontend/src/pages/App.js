@@ -22,14 +22,11 @@ const useStyles = makeStyles(theme => ({
     right: 0,
     left: 0,
   },
-  donationLink: {
-    textDecoration: 'underline',
-  },
 }));
 
 export default function App() {
   const classes = useStyles();
-  const { isDark, secondaryColor } = useTheme();
+  const { isDark } = useTheme();
   const muiTheme = useMuiTheme();
 
   React.useEffect(() => {
@@ -57,7 +54,7 @@ export default function App() {
                   Made with{' '}
                   <span role="img" aria-label="love">
                     ❤️
-                  </span>{' '}
+                  </span>
                   on Earth
                 </div>
                 <div>
@@ -65,7 +62,7 @@ export default function App() {
                   <Link
                     href="https://zkpay.link/aNeouH"
                     target="_blank"
-                    className={classes.donationLink}
+                    className="underline"
                   >
                     here
                   </Link>

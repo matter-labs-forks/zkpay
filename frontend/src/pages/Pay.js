@@ -12,7 +12,6 @@ import {
   Link,
 } from '@material-ui/core';
 import { useWallet } from 'contexts/wallet';
-import { useTheme } from 'contexts/theme';
 import { useLinks } from 'contexts/links';
 import sl, { slPrompt } from 'utils/sl';
 
@@ -57,7 +56,6 @@ export default function Component({
   },
 }) {
   const classes = useStyles();
-  const { secondaryColor } = useTheme();
   const [method, setMethod] = React.useState('zk');
   const [asset, setAsset] = React.useState('ETH');
   const [amount, setAmount] = React.useState(0.01);
@@ -212,6 +210,14 @@ export default function Component({
           </div>
         </div>
       </Paper>
+
+      <div style={{ marginTop: 20 }}>
+        Create your own link{' '}
+        <Link href="/" target="_blank" className="underline">
+          here
+        </Link>
+        .
+      </div>
     </div>
   );
 }
