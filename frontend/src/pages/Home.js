@@ -328,6 +328,7 @@ function CreateLink({ open, onClose }) {
             id="amount"
             label={`${assetType} Amount (optional)`}
             type="number"
+            step="any"
             InputLabelProps={{
               shrink: true,
             }}
