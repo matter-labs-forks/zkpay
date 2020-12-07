@@ -38,7 +38,6 @@ export default class Wallet {
 
   async setupEthers() {
     this.web3Provider = await web3Modal.connect();
-    console.log(this.web3Provider);
     this.ethersProvider = new ethers.providers.Web3Provider(this.web3Provider);
     this.net = await this.ethersProvider.getNetwork();
 
@@ -95,6 +94,7 @@ export default class Wallet {
   }
 
   async disconnect() {
+    web3Modal.clearCachedProvider();
     this.address = null;
   }
 
