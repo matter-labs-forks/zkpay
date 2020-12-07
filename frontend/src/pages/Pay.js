@@ -93,8 +93,6 @@ export default function Component({
   }, [linkId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSend = async () => {
-    await connect();
-
     if (isZk) {
       await ensureIsRegistered();
       console.log(await transfer(link.address, amount.toString()));
@@ -119,13 +117,14 @@ export default function Component({
             'items-center',
             'justify-center'
           )}
+          style={{ color: link.color }}
         >
           Pay
         </div>
         <div
           className={clsx(classes.paperBody, 'flex', 'flex-col', 'flex-grow')}
         >
-          <div style={{ color: secondaryColor }} className={classes.infoBar}>
+          <div style={{ color: link.color }} className={classes.infoBar}>
             You have the option to send from your Zk Sync account (fast & cheap)
             or <br />
             the regular network.{' '}
@@ -134,6 +133,7 @@ export default function Component({
               variant="inherit"
               target="_blank"
               className={classes.learnMore}
+              style={{ color: link.color }}
             >
               Learn more.
             </Link>
@@ -177,6 +177,7 @@ export default function Component({
               id="amount"
               label={`Amount (${asset})`}
               type="number"
+              step="any"
               InputLabelProps={{
                 shrink: true,
               }}
@@ -192,7 +193,8 @@ export default function Component({
                 variant="contained"
                 color="secondary"
                 className={classes.formButton}
-                onClick={onSend}
+                onClick={connect}
+                style={{ backgroundColor: link.color }}
               >
                 Connect Wallet
               </Button>
@@ -202,8 +204,9 @@ export default function Component({
                 color="secondary"
                 className={classes.formButton}
                 onClick={onSend}
+                style={{ backgroundColor: link.color }}
               >
-                Send
+                Send ({amount} {asset})
               </Button>
             )}
           </div>
