@@ -37,6 +37,7 @@ export default class Wallet {
   }
 
   async setupEthers() {
+    web3Modal.clearCachedProvider();
     this.web3Provider = await web3Modal.connect();
     this.ethersProvider = new ethers.providers.Web3Provider(this.web3Provider);
     this.net = await this.ethersProvider.getNetwork();
