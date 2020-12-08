@@ -12,12 +12,13 @@ import {
   Dialog,
   Popover,
 } from '@material-ui/core';
+import * as ethers from 'ethers';
 import { TwitterPicker as ColorPicker } from 'react-color';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Loader from 'components/Loader';
 import Header from 'components/Header';
 import { useTheme } from 'contexts/theme';
-import { useWallet } from 'contexts/wallet';
+import { wallet, useWallet } from 'contexts/wallet';
 import { useLinks } from 'contexts/links';
 import sl, { warn } from 'utils/sl';
 import { sleep } from 'utils/misc';
@@ -73,7 +74,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ASSET_TYPES = ['ETH', 'ERC20'];
+const ASSET_TYPES = ['ETH', 'ERC20 Token'];
 
 export default function Component() {
   const classes = useStyles();
@@ -242,7 +243,8 @@ function CreateLink({ open, onClose }) {
   const [color, setColor] = React.useState('#fc0');
   const [recipient, setRecipient] = React.useState(address);
   const [assetType, setAssetType] = React.useState('ETH');
-  const [erc20AssetAddress, setErc20AssetAddress] = React.useState('');
+  const [erc20TokenAddress, setERC20TokenAddress] = React.useState('');
+  const [erc20Token, setERC20Token] = React.useState(null);
   const [amount, setAmount] = React.useState(0.1);
   const [colorField, setColorField] = React.useState(null);
 
@@ -252,12 +254,37 @@ function CreateLink({ open, onClose }) {
       name,
       color,
       assetType,
-      erc20AssetAddress,
+      erc20TokenAddress,
       amount,
       address,
     });
     sl('info', 'Created link..', 'Success!', onClose);
   };
+
+  const lookupERC20Token = async () => {
+    let token;
+
+    if (!(assetType === 'ETH' || !erc20TokenAddress)) {
+      const { default: erc20Abi } = await import('abis/erc20.json');
+      const erc20Contract = new ethers.Contract(
+        erc20TokenAddress,
+        erc20Abi,
+        wallet.ethersWallet
+      );
+      try {
+        token = {
+          symbol: (await erc20Contract.symbol()).toUpperCase(),
+          decimals: await erc20Contract.decimals(),
+        };
+      } catch (e) {}
+    }
+
+    setERC20Token(token);
+  };
+
+  React.useEffect(() => {
+    lookupERC20Token();
+  }, [assetType, erc20TokenAddress]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Dialog {...{ open, onClose }}>
@@ -307,7 +334,7 @@ function CreateLink({ open, onClose }) {
             </Select>
           </FormControl>
         </div>
-        {assetType !== 'ERC20' ? null : (
+        {assetType === 'ETH' ? null : (
           <div className={classes.formRow}>
             <TextField
               id="amount"
@@ -316,27 +343,31 @@ function CreateLink({ open, onClose }) {
               InputLabelProps={{
                 shrink: true,
               }}
-              value={erc20AssetAddress}
-              onChange={e => setErc20AssetAddress(e.target.value)}
+              value={erc20TokenAddress}
+              onChange={e => setERC20TokenAddress(e.target.value)}
               fullWidth
               required
             />
           </div>
         )}
-        <div className={classes.formRow}>
-          <TextField
-            id="amount"
-            label={`${assetType} Amount (optional)`}
-            type="number"
-            step="any"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-            fullWidth
-          />
-        </div>
+        {assetType !== 'ETH' && !erc20Token ? null : (
+          <div className={classes.formRow}>
+            <TextField
+              id="amount"
+              label={`Default ${
+                assetType === 'ETH' ? assetType : erc20Token.symbol
+              } Amount (optional)`}
+              type="number"
+              step="any"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              fullWidth
+            />
+          </div>
+        )}
         <div className={classes.formRow}>
           <TextField
             id="recipient"

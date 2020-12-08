@@ -21,6 +21,7 @@ const useStyles = makeStyles(theme => ({
     bottom: 10,
     right: 0,
     left: 0,
+    fontSize: 10,
   },
 }));
 
@@ -50,6 +51,7 @@ export default function App() {
 
             <div className={clsx(classes.footer)}>
               <div className="flex flex-col flex-grow items-center flex-grow">
+                {/*
                 <div>
                   Made with{' '}
                   <span role="img" aria-label="love">
@@ -58,7 +60,11 @@ export default function App() {
                   on Earth
                 </div>
                 <div>
-                  Donations accepted{' '}
+                  If you find this site useful, consider buying me a{' '}
+                  <span role="img" aria-label="beer">
+                    🍺
+                  </span>{' '}
+                  over{' '}
                   <Link
                     href="https://zkpay.link/aNeouH"
                     target="_blank"
@@ -67,6 +73,18 @@ export default function App() {
                     here
                   </Link>
                   .
+                </div>
+                */}
+                <div>
+                  This site has its own donation link over{' '}
+                  <Link
+                    href="https://zkpay.link/aNeouH"
+                    target="_blank"
+                    className="underline"
+                  >
+                    here
+                  </Link>
+                  !
                 </div>
               </div>
             </div>
