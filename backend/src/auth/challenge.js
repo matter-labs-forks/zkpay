@@ -1,16 +1,16 @@
-const NodeCache = require("node-cache")
-const crypto = require("crypto")
-const ethers = require("ethers")
-const {TypedDataUtils} = require("ethers-eip712")
-const sigUtil = require("eth-sig-util")
-const {SECRET} = require("config")
+const NodeCache = require('node-cache')
+const crypto = require('crypto')
+const ethers = require('ethers')
+const {TypedDataUtils} = require('ethers-eip712')
+const sigUtil = require('eth-sig-util')
+const {SECRET} = require('config')
 
 const CACHE = new NodeCache({
   stdTTL: 600,
 })
 
 exports.create = function (chainId, address) {
-  const hash = crypto.createHmac("sha256", SECRET).update(address).digest("hex")
+  const hash = crypto.createHmac('sha256', SECRET).update(address).digest('hex')
   CACHE.set(address, hash)
   return makeChallengeTypedData(chainId, hash)
 }
@@ -50,15 +50,15 @@ exports.verify = function (chainId, challenge, sig) {
 function makeChallengeTypedData(chainId, challenge) {
   return TypedDataUtils.buildTypedData(
     {
-      name: "ZKPay",
-      version: "1",
+      name: 'zkpay',
+      version: '1',
       chainId,
-      verifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
+      verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
     },
     {
-      Challenge: [{name: "challenge", type: "string"}],
+      Challenge: [{name: 'challenge', type: 'string'}],
     },
-    "Challenge",
+    'Challenge',
     {
       challenge,
     }
