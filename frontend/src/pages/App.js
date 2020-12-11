@@ -75,17 +75,16 @@ export default function App() {
                   .
                 </div>
                 */}
-                <div>
-                  This site has its own donation link over{' '}
-                  <Link
-                    href="https://zkpay.link/aNeouH"
-                    target="_blank"
-                    className="underline"
-                  >
-                    here
-                  </Link>
-                  !
-                </div>
+                <Link
+                  href="https://zkpay.link/aNeouH"
+                  target="_blank"
+                  className="flex items-center"
+                >
+                  Donate &nbsp;
+                  <span role="img" aria-label="heart">
+                    ❤️
+                  </span>
+                </Link>
               </div>
             </div>
           </div>

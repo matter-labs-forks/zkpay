@@ -22,7 +22,7 @@ export function LinksProvider({ children }) {
   }
 
   async function getFromIpfs(id) {
-    console.log('ipfs', id);
+    console.log('get ipfs', id);
     const ipfsId = await registry.get(id);
     const link = JSON.parse(await ipfs.cat(ipfsId));
     link.id = id;
@@ -33,8 +33,12 @@ export function LinksProvider({ children }) {
   async function create(props) {
     setIsCreating(true);
 
+    if (props.image) {
+      props.image = await ipfs.add(props.image);
+    }
     const ipfsId = await ipfs.add(JSON.stringify(props));
     const id = nanoid();
+    console.log('create id(%s) ipfs(%s)', id, ipfsId);
     await registry.put(id, ipfsId);
     setLinkIds([id, ...linkIds]);
 

@@ -9,6 +9,10 @@ const API_URL = process.env.REACT_APP_API_URL;
 export default function xhr(method, url, payload, headers = {}) {
   method = method.toUpperCase();
 
+  if (!~url.indexOf('https')) {
+    url = API_URL + url;
+  }
+
   const opts = {
     credentials: 'omit',
     method,
@@ -52,7 +56,7 @@ export default function xhr(method, url, payload, headers = {}) {
   NProgress.set(0.4);
 
   return new Promise((resolve, reject) => {
-    fetch(`${API_URL}${url}`, opts)
+    fetch(url, opts)
       .then(res => {
         NProgress.done();
         if (200 === res.status) {

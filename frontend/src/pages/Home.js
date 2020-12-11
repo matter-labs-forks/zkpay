@@ -1,27 +1,18 @@
 import React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Paper,
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Dialog,
-  Popover,
-} from '@material-ui/core';
+import { Paper, TextField, Button, Dialog, Popover } from '@material-ui/core';
 import * as ethers from 'ethers';
 import { TwitterPicker as ColorPicker } from 'react-color';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Loader from 'components/Loader';
 import Header from 'components/Header';
 import { useTheme } from 'contexts/theme';
-import { wallet, useWallet } from 'contexts/wallet';
+import { useWallet } from 'contexts/wallet';
 import { useLinks } from 'contexts/links';
 import sl, { warn } from 'utils/sl';
 import { sleep } from 'utils/misc';
+import { pickImage } from 'utils/file-picker';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -49,7 +40,7 @@ const useStyles = makeStyles(theme => ({
     marginBottom: 20,
   },
   createLinkDialog: {
-    width: 500,
+    width: 600,
     padding: 30,
   },
   link: {
@@ -72,9 +63,10 @@ const useStyles = makeStyles(theme => ({
     position: 'relative',
     borderRadius: 4,
   },
+  error: {
+    color: theme.palette.error.main,
+  },
 }));
-
-const ASSET_TYPES = ['ETH', 'ERC20 Token'];
 
 export default function Component() {
   const classes = useStyles();
@@ -83,6 +75,10 @@ export default function Component() {
 
   const onStartCreate = () => setIsCreating(true);
   const onEndCreating = () => setIsCreating(false);
+
+  React.useEffect(() => {
+    onStartCreate();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -238,53 +234,47 @@ function CreateLink({ open, onClose }) {
   const classes = useStyles();
   const { address } = useWallet();
   const { secondaryColor } = useTheme();
-  const { create } = useLinks();
+  const { isCreating, create } = useLinks();
+
   const [name, setName] = React.useState('');
+
+  const [title, setTitle] = React.useState('');
+  const [description, setDescription] = React.useState('');
+  const [image, setImage] = React.useState(null);
   const [color, setColor] = React.useState('#fc0');
-  const [recipient, setRecipient] = React.useState(address);
-  const [assetType, setAssetType] = React.useState('ETH');
-  const [erc20TokenAddress, setERC20TokenAddress] = React.useState('');
-  const [erc20Token, setERC20Token] = React.useState(null);
-  const [amount, setAmount] = React.useState(0.1);
+
+  const [to, setTo] = React.useState(address);
+  const [toError, setToError] = React.useState(null);
+
+  const [usdAmount, setUSDAmount] = React.useState(100);
   const [colorField, setColorField] = React.useState(null);
 
   const onCreate = async e => {
     e.preventDefault();
+    if (isCreating) return;
+
     await create({
       name,
+      title,
+      description,
+      image,
       color,
-      assetType,
-      erc20TokenAddress,
-      amount,
-      address,
+      usdAmount,
+      to,
     });
     sl('info', 'Created link..', 'Success!', onClose);
+    setName('');
+    setTitle('');
+    setDescription('');
+    setImage(null);
+    setColor('#fc0');
+    setUSDAmount(100);
+    setTo(address);
   };
 
-  const lookupERC20Token = async () => {
-    let token;
-
-    if (!(assetType === 'ETH' || !erc20TokenAddress)) {
-      const { default: erc20Abi } = await import('abis/erc20.json');
-      const erc20Contract = new ethers.Contract(
-        erc20TokenAddress,
-        erc20Abi,
-        wallet.ethersWallet
-      );
-      try {
-        token = {
-          symbol: (await erc20Contract.symbol()).toUpperCase(),
-          decimals: await erc20Contract.decimals(),
-        };
-      } catch (e) {}
-    }
-
-    setERC20Token(token);
+  const onPickImage = async () => {
+    setImage(await pickImage());
   };
-
-  React.useEffect(() => {
-    lookupERC20Token();
-  }, [assetType, erc20TokenAddress]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Dialog {...{ open, onClose }}>
@@ -317,71 +307,74 @@ function CreateLink({ open, onClose }) {
           />
         </div>
         <div className={classes.formRow}>
-          <FormControl fullWidth>
-            <InputLabel id="assetTypeLabel">Asset to Receive*</InputLabel>
-            <Select
-              labelId="assetTypeLabel"
-              id="assetTypeSelect"
-              value={assetType}
-              onChange={event => setAssetType(event.target.value)}
-              required
-            >
-              {ASSET_TYPES.map(name => (
-                <MenuItem value={name} key={name}>
-                  {name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </div>
-        {assetType === 'ETH' ? null : (
-          <div className={classes.formRow}>
-            <TextField
-              id="amount"
-              label={'ERC20 Token Contract Address'}
-              type="text"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              value={erc20TokenAddress}
-              onChange={e => setERC20TokenAddress(e.target.value)}
-              fullWidth
-              required
-            />
-          </div>
-        )}
-        {assetType !== 'ETH' && !erc20Token ? null : (
-          <div className={classes.formRow}>
-            <TextField
-              id="amount"
-              label={`Default ${
-                assetType === 'ETH' ? assetType : erc20Token.symbol
-              } Amount (optional)`}
-              type="number"
-              step="any"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              fullWidth
-            />
-          </div>
-        )}
-        <div className={classes.formRow}>
           <TextField
-            id="recipient"
-            label={'Recipient'}
+            id="title"
+            label={'Page title'}
             type="text"
             InputLabelProps={{
               shrink: true,
             }}
-            placeholder="Recipient address..."
-            value={recipient}
-            onChange={e => setRecipient(e.target.value)}
+            placeholder=""
+            value={title}
+            onChange={e => setTitle(e.target.value)}
             fullWidth
             required
           />
+        </div>
+        <div className={classes.formRow}>
+          <TextField
+            id="description"
+            label={'Page description'}
+            type="text"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            placeholder=""
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            multiline
+            rows={3}
+            rowsMax={5}
+            fullWidth
+          />
+        </div>
+        <div className={classes.formRow}>
+          <TextField
+            id="usd"
+            label={'Minimum amount to receive (USD)'}
+            type="number"
+            step="any"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            value={usdAmount}
+            onChange={e => setUSDAmount(e.target.value)}
+            fullWidth
+          />
+        </div>
+        <div className={classes.formRow}>
+          <TextField
+            id="to"
+            label={'To'}
+            type="text"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            placeholder="Set alternate recipient..."
+            value={to}
+            onChange={e => {
+              const addr = e.target.value;
+              setTo(addr);
+              if (!ethers.utils.isAddress(addr)) {
+                setToError('Invalid address...');
+              } else {
+                setToError(null);
+              }
+            }}
+            fullWidth
+            required
+          />
+          {!toError ? null : <div className={classes.error}>{toError}</div>}
         </div>
         <div className={clsx(classes.formRow, 'flex')}>
           <div className={classes.colorFieldLabel}>Theme Color*</div>
@@ -391,21 +384,52 @@ function CreateLink({ open, onClose }) {
             onClick={e => setColorField(e.target)}
           ></div>
         </div>
-        <div className={classes.formRow}>
+
+        <div className={clsx(classes.formRow, 'flex flex-col')}>
+          {image ? (
+            <>
+              <img src={image} alt={'link'} width={150} onClick={onPickImage} />
+              <Button
+                color="secondary"
+                className={classes.formButton}
+                type="button"
+                onClick={onPickImage}
+              >
+                Change
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="outlined"
+              color="secondary"
+              type="button"
+              onClick={onPickImage}
+              style={{ textTransform: 'none' }}
+            >
+              Upload Image (e.g. Product Showcase)
+            </Button>
+          )}
+        </div>
+
+        <div className={clsx(classes.formRow, 'flex', 'items-center')}>
           <Button
             variant="contained"
             color="secondary"
             className={classes.formButton}
             type="submit"
+            disabled={isCreating}
           >
-            Create
+            {!isCreating ? 'Create' : 'Creating...'}
+            {!isCreating ? null : <Loader size={15} />}
           </Button>
           &nbsp;
           <Button
+            variant="outlined"
             color="secondary"
             className={classes.formButton}
             onClick={onClose}
             type="button"
+            disabled={isCreating}
           >
             Cancel
           </Button>
