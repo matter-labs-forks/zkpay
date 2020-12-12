@@ -81,6 +81,7 @@ export default class Wallet {
   async disconnect() {
     web3Modal.clearCachedProvider();
     this.address = null;
+    cache('token', null);
   }
 
   getNetworkName() {

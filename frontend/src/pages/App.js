@@ -14,13 +14,10 @@ import Pay from './Pay';
 
 const history = createBrowserHistory();
 
-const useStyles = makeStyles(theme => ({
-  container: { paddingTop: 100 },
+const useStyles = makeStyles(() => ({
+  content: { minHeight: 'calc(100vh - 60px)' },
   footer: {
-    position: 'fixed',
-    bottom: 10,
-    right: 0,
-    left: 0,
+    padding: '20px 0 20px',
     fontSize: 10,
   },
 }));
@@ -44,11 +41,12 @@ export default function App() {
       <Router {...{ history }}>
         <div className={classes.container}>
           <div className="flex-grow">
-            <Switch>
-              <Route path={'/:link'} component={Pay} />
-              <Route path={'/'} component={Home} />
-            </Switch>
-
+            <div className={classes.content}>
+              <Switch>
+                <Route path={'/:link'} component={Pay} />
+                <Route path={'/'} component={Home} />
+              </Switch>
+            </div>
             <div className={clsx(classes.footer)}>
               <div className="flex flex-col flex-grow items-center flex-grow">
                 {/*
@@ -76,7 +74,7 @@ export default function App() {
                 </div>
                 */}
                 <Link
-                  href="https://zkpay.link/aNeouH"
+                  href="https://zkpay.link/PPxd4V"
                   target="_blank"
                   className="flex items-center"
                 >

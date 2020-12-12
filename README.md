@@ -2,10 +2,14 @@
 
 ### zkpay
 
-Quickest way to create page links to accept payments, donations etc.
-Users have the option to pay cheaply and fast with [zkSync](https://zksync.io) or regular network.
+The quickest way to create page links to accept payments, donations etc, powered by [zkSync](https://zksync.io).
 
 Project link: https://zkpay.link
+
+✔ Themeable
+✔ Image uploads
+✔ Mobile responsive
+✔ Configurable acceptable USD amount & type (default/exact/minimum)
 
 ### Getting started
 
@@ -13,11 +17,21 @@ Project link: https://zkpay.link
 
 - Node.JS 12+
 - Git
+- Redis
 
 #### Running the app
 
-Todo.
+- Start redis server on default port
+- On seperate tabs, `cd` into `backend` and `frontend` and:
+  - Run `yarn` to install node packages.
+  - Copy `.env.sample` or `.env.local.sample` to `.env` and configure appropriately.
+  - Run `make` to boot app.
+- Visit frontend at http://localhost:5555 (or configured port).
 
 ### How it works
 
 Todo.
+
+### Donate ❤️
+
+This project has its own donation link at https://zkpay.link/PPxd4V

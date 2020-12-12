@@ -1,14 +1,24 @@
 import React from 'react';
+import _capitalize from 'lodash/capitalize';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import { Paper, TextField, Button, Dialog, Popover } from '@material-ui/core';
+import {
+  Paper,
+  TextField,
+  Button,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  Dialog,
+  Popover,
+} from '@material-ui/core';
 import * as ethers from 'ethers';
 import { TwitterPicker as ColorPicker } from 'react-color';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Loader from 'components/Loader';
 import Header from 'components/Header';
 import { useTheme } from 'contexts/theme';
-import { useWallet } from 'contexts/wallet';
+import { wallet, useWallet } from 'contexts/wallet';
 import { useLinks } from 'contexts/links';
 import sl, { warn } from 'utils/sl';
 import { sleep } from 'utils/misc';
@@ -17,6 +27,7 @@ import { pickImage } from 'utils/file-picker';
 const useStyles = makeStyles(theme => ({
   paper: {
     width: 600,
+    marginTop: 100,
   },
   paperHeading: {
     padding: 20,
@@ -66,6 +77,12 @@ const useStyles = makeStyles(theme => ({
   error: {
     color: theme.palette.error.main,
   },
+  usdAmountTypeOptions: {
+    marginLeft: 30,
+    '& .MuiFormControlLabel-label': {
+      fontSize: 11,
+    },
+  },
 }));
 
 export default function Component() {
@@ -76,9 +93,9 @@ export default function Component() {
   const onStartCreate = () => setIsCreating(true);
   const onEndCreating = () => setIsCreating(false);
 
-  React.useEffect(() => {
-    onStartCreate();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // React.useEffect(() => {
+  //   onStartCreate();
+  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -247,6 +264,7 @@ function CreateLink({ open, onClose }) {
   const [toError, setToError] = React.useState(null);
 
   const [usdAmount, setUSDAmount] = React.useState(100);
+  const [usdAmountType, setUSDAmountType] = React.useState('default');
   const [colorField, setColorField] = React.useState(null);
 
   const onCreate = async e => {
@@ -260,7 +278,9 @@ function CreateLink({ open, onClose }) {
       image,
       color,
       usdAmount,
+      usdAmountType,
       to,
+      network: wallet.getNetworkName(),
     });
     sl('info', 'Created link..', 'Success!', onClose);
     setName('');
@@ -341,7 +361,7 @@ function CreateLink({ open, onClose }) {
         <div className={classes.formRow}>
           <TextField
             id="usd"
-            label={'Minimum amount to receive (USD)'}
+            label={`${_capitalize(usdAmountType)} amount to receive (USD)`}
             type="number"
             step="any"
             InputLabelProps={{
@@ -350,7 +370,33 @@ function CreateLink({ open, onClose }) {
             value={usdAmount}
             onChange={e => setUSDAmount(e.target.value)}
             fullWidth
+            required
           />
+
+          <div className={clsx(classes.usdAmountTypeOptions)}>
+            <RadioGroup
+              row
+              name="usdAmountType"
+              value={usdAmountType}
+              onChange={e => setUSDAmountType(e.target.value)}
+            >
+              <FormControlLabel
+                value="default"
+                control={<Radio />}
+                label="Default"
+              />
+              <FormControlLabel
+                value="exact"
+                control={<Radio />}
+                label="Exact"
+              />
+              <FormControlLabel
+                value="minimum"
+                control={<Radio />}
+                label="Minimum"
+              />
+            </RadioGroup>
+          </div>
         </div>
         <div className={classes.formRow}>
           <TextField
@@ -377,14 +423,19 @@ function CreateLink({ open, onClose }) {
           {!toError ? null : <div className={classes.error}>{toError}</div>}
         </div>
         <div className={clsx(classes.formRow, 'flex')}>
-          <div className={classes.colorFieldLabel}>Theme Color*</div>
+          <div className={classes.colorFieldLabel}>Theme Color *</div>
           <div
             className={classes.colorField}
             style={{ background: color }}
             onClick={e => setColorField(e.target)}
           ></div>
         </div>
-
+        <div className={clsx(classes.formRow, 'flex')}>
+          <div className={classes.colorFieldLabel}>Network *</div>
+          <div className={classes.colorField}>
+            {_capitalize(wallet.getNetworkName())}
+          </div>
+        </div>
         <div className={clsx(classes.formRow, 'flex flex-col')}>
           {image ? (
             <>

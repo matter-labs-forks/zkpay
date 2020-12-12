@@ -21,6 +21,7 @@ import ipfs from 'utils/ipfs';
 const useStyles = makeStyles(theme => ({
   paper: {
     width: 600,
+    marginTop: 50,
   },
   paperHeading: {
     padding: 20,
@@ -66,13 +67,10 @@ export default function Component({
     // setTokenDecimals
   ] = React.useState(18);
   const [tokenUSDPrice, setTokenUSDPrice] = React.useState(null);
-
   const { getFromIpfs } = useLinks();
-
   const [link, setLink] = React.useState(null);
   const [usdAmount, setUSDAmount] = React.useState(100);
   const imageElRef = React.useRef();
-
   const tokenAmount = !(usdAmount && tokenUSDPrice)
     ? 0
     : (usdAmount / tokenUSDPrice).toFixed(4);
@@ -118,10 +116,15 @@ export default function Component({
     setTokenUSDPrice(usd);
   };
 
-  const onSend = async () => {
-    if (!tokenAmount) return;
+  const onPay = async e => {
+    e.preventDefault();
 
-    const manager = new CheckoutManager('mainnet');
+    if (!tokenAmount) return;
+    if (link.usdAmountType === 'minimum' && usdAmount < link.usdAmount) {
+      return sl('error', `A minimium of ${link.usdAmount} USD is required.`);
+    }
+
+    const manager = new CheckoutManager(link.network || 'mainnet');
     const transactions = {
       to: link.to,
       token: tokenSymbol,
@@ -145,7 +148,10 @@ export default function Component({
   }, [tokenSymbol]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return !link ? null : (
-    <div className={clsx('flex flex-col items-center', classes.container)}>
+    <form
+      className={clsx('flex flex-col items-center', classes.container)}
+      onSubmit={onPay}
+    >
       <Paper className={clsx(classes.paper)}>
         <div
           className={clsx(
@@ -186,6 +192,10 @@ export default function Component({
               }}
               value={usdAmount}
               onChange={e => setUSDAmount(e.target.value)}
+              disabled={link.usdAmountType === 'exact'}
+              {...(link.usdAmountType === 'minimum'
+                ? { min: link.usdAmount }
+                : {})}
               fullWidth
               required
             />
@@ -207,13 +217,18 @@ export default function Component({
               </Select>
             </FormControl>
           </div>
+          {!tokenUSDPrice ? null : (
+            <div className={classes.formRow}>
+              Rate: 1 {tokenSymbol} = ${tokenUSDPrice.toFixed(4)}
+            </div>
+          )}
           <div className={classes.formRow}>
             <Button
               variant="contained"
               color="secondary"
               className={classes.formButton}
-              onClick={onSend}
               style={{ backgroundColor: link.color }}
+              type="submit"
             >
               Send ({tokenAmount} {tokenSymbol})
             </Button>
@@ -228,6 +243,6 @@ export default function Component({
         </Link>
         .
       </div>
-    </div>
+    </form>
   );
 }
