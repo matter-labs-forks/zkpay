@@ -13,6 +13,7 @@ import {
   InputLabel,
   Link,
 } from '@material-ui/core';
+import LightSwitch from 'components/LightSwitch';
 import { useLinks } from 'contexts/links';
 import sl, { slPrompt } from 'utils/sl';
 import xhr from 'utils/xhr';
@@ -24,8 +25,8 @@ const useStyles = makeStyles(theme => ({
     marginTop: 50,
   },
   paperHeading: {
-    padding: 20,
-    background: theme.palette.isDark ? '#303030' : '#eee',
+    paddingLeft: 30,
+    background: '#303030',
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
   },
@@ -163,7 +164,8 @@ export default function Component({
           )}
           style={{ color: link.color }}
         >
-          {link.title}
+          <div className="flex-grow">{link.title}</div>
+          <LightSwitch />
         </div>
         <div
           className={clsx(classes.paperBody, 'flex', 'flex-col', 'flex-grow')}

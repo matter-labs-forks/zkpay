@@ -3,18 +3,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
 import {
   IconButton,
-  Tooltip,
   AppBar,
   Typography,
   Toolbar,
   Button,
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
-import LightIcon from '@material-ui/icons/Brightness7';
-import DarkIcon from '@material-ui/icons/Brightness4';
+import LightSwitch from 'components/LightSwitch';
 import { APP_TITLE } from 'config';
 import { useWallet } from 'contexts/wallet';
-import { useTheme } from 'contexts/theme';
 
 const useStyles = makeStyles(theme => ({
   account: {
@@ -25,11 +22,6 @@ const useStyles = makeStyles(theme => ({
 export default function Component() {
   const classes = useStyles();
   const { address, connect, disconnect } = useWallet();
-  const { isDark, setTheme, theme } = useTheme();
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
 
   return (
     <AppBar position="fixed" color="inherit">
@@ -63,15 +55,7 @@ export default function Component() {
           </Button>
         )}
 
-        <Tooltip title="Toggle light/dark theme">
-          <IconButton
-            onClick={toggleTheme}
-            color="inherit"
-            aria-label="Toggle light/dark theme"
-          >
-            {isDark ? <LightIcon /> : <DarkIcon />}
-          </IconButton>
-        </Tooltip>
+        <LightSwitch />
       </Toolbar>
     </AppBar>
   );
