@@ -1,4 +1,8 @@
-![](https://zkpay.link/shot.png)
+<div align="center">
+  <a href="https://zkpay.link">
+    <img src="https://zkpay.link/shot.1.png" alt="zkpay" width=400 />
+  </a>
+</div>
 
 ### zkpay
 
@@ -6,10 +10,10 @@ The quickest way to create page links to accept payments, donations etc, powered
 
 Project link: https://zkpay.link
 
-✔ Themeable
-✔ Image uploads
-✔ Mobile responsive
-✔ Configurable acceptable USD amount & type (default/exact/minimum)
+- Themeable
+- Image uploads
+- Mobile responsive
+- Configurable acceptable USD amount & type (default/exact/minimum)
 
 ### Getting started
 
