@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://zkpay.link">
-    <img src="https://zkpay.link/shot.1.png" alt="zkpay" width=400 />
+    <img src="https://zkpay.link/shot.2.png" alt="zkpay" width=400 />
   </a>
 </div>
 
