@@ -15,6 +15,10 @@ Project link: https://zkpay.link
 - Mobile responsive
 - Configurable acceptable USD amount & type (default/exact/minimum)
 
+### Video demo
+
+https://photos.app.goo.gl/N6EgNhuvXcjJ2o3c7
+
 ### Getting started
 
 #### Prerequisites
