@@ -1,5 +1,5 @@
 import React from 'react';
-import Wallet, { web3Modal } from 'utils/wallet';
+import Wallet from 'utils/wallet';
 
 export const wallet = new Wallet();
 const WalletContext = React.createContext(null);
@@ -18,15 +18,16 @@ export function WalletProvider({ children }) {
     setAddress(wallet.address);
   }
 
-  async function onLoad() {
-    if (web3Modal.cachedProvider) {
-      connect();
-    }
-  }
-
-  React.useEffect(() => {
-    onLoad();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Disabled for security reasons
+  // async function onLoad() {
+  //   if (web3Modal.cachedProvider) {
+  //     connect();
+  //   }
+  // }
+  //
+  // React.useEffect(() => {
+  //   onLoad();
+  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <WalletContext.Provider

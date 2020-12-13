@@ -5,11 +5,7 @@ import DarkIcon from '@material-ui/icons/Brightness4';
 import { useTheme } from 'contexts/theme';
 
 export default function() {
-  const { isDark, setTheme, theme } = useTheme();
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  const { isDark, toggleTheme } = useTheme();
 
   return (
     <Tooltip title="Toggle light/dark theme">

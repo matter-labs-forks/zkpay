@@ -3,7 +3,6 @@ import Web3Modal from 'web3modal';
 import MewConnect from '@myetherwallet/mewconnect-web-client';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import xhr from 'utils/xhr';
-import cache from 'utils/cache';
 import { INFURA_ID } from 'config';
 
 export const web3Modal = new Web3Modal({
@@ -51,8 +50,6 @@ export default class Wallet {
   }
 
   async setupRegistry() {
-    if (cache('token')) return;
-
     const challenge = await xhr(
       'get',
       `/auth/${this.net.chainId}/${this.address.toLowerCase()}`
@@ -71,17 +68,16 @@ export default class Wallet {
     });
 
     // verify
-    const token = await xhr(
+    this.token = await xhr(
       'get',
       `/auth/${this.net.chainId}/${challenge.message.challenge}/${signature}`
     );
-    cache('token', token);
   }
 
   async disconnect() {
     web3Modal.clearCachedProvider();
     this.address = null;
-    cache('token', null);
+    this.token = null;
   }
 
   getNetworkName() {

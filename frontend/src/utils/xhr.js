@@ -2,7 +2,7 @@ import NProgress from 'nprogress';
 import Promise from 'bluebird';
 import fetch from 'unfetch';
 import { stringify } from 'query-string';
-import cache from './cache';
+import { wallet } from 'contexts/wallet';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -47,9 +47,8 @@ export default function xhr(method, url, payload, headers = {}) {
     }
   }
 
-  const token = cache('token');
-  if (token) {
-    opts.headers.Authorization = `Bearer ${token}`;
+  if (wallet.token) {
+    opts.headers.Authorization = `Bearer ${wallet.token}`;
   }
 
   NProgress.start();

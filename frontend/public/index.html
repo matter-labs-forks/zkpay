@@ -150,12 +150,12 @@
       function themeIsDark() {
         try {
           if (!('localStorage' in window && window['localStorage'] !== null)) {
-            return false;
+            return true;
           }
           var theme = localStorage.getItem('theme');
           return 'dark' === JSON.parse(theme);
         } catch (e) {
-          return false;
+          return true;
         }
       }
     </script>

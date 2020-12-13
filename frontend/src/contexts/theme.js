@@ -7,11 +7,17 @@ const ThemeContext = React.createContext(null);
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = React.useState(cache('theme') || 'dark');
 
+  const toggleTheme = () => {
+    const t = theme === 'dark' ? 'light' : 'dark';
+    cache('theme', t);
+    setTheme(t);
+  };
+
   return (
     <ThemeContext.Provider
       value={{
         theme,
-        setTheme,
+        toggleTheme,
       }}
     >
       {children}
@@ -24,10 +30,10 @@ export function useTheme() {
   if (!context) {
     throw new Error('Missing theme context');
   }
-  const { theme, setTheme } = context;
+  const { theme, toggleTheme } = context;
   return {
     theme,
-    setTheme,
+    toggleTheme,
     ...getProps(theme),
   };
 }
