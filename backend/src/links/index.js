@@ -12,7 +12,7 @@ app.get('/:id', async (req, res, next) => {
   try {
     res.json(await db.one(req.params.id))
   } catch (e) {
-    throw error(403)
+    next(e)
   }
 })
 
@@ -23,7 +23,7 @@ app.get('/', async (req, res, next) => {
     }
     throw error(403)
   } catch (e) {
-    throw error(403)
+    next(e)
   }
 })
 
@@ -35,6 +35,6 @@ app.put('/', apiLimiter, async (req, res, next) => {
     }
     throw error(403)
   } catch (e) {
-    throw error(403)
+    next(e)
   }
 })

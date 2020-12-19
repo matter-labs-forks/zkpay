@@ -8,9 +8,11 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = React.useState(cache('theme') || 'dark');
 
   const toggleTheme = () => {
-    const t = theme === 'dark' ? 'light' : 'dark';
-    cache('theme', t);
-    setTheme(t);
+    setTheme(theme => {
+      const newTheme = theme === 'dark' ? 'light' : 'dark';
+      cache('theme', newTheme);
+      return newTheme;
+    });
   };
 
   return (
